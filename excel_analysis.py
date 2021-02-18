@@ -58,8 +58,49 @@ americas_df.loc['Total', 'Total Profit']= americas_df['Total Profit'].sum()
 americas_df.loc['Total', 'Units Sold']= americas_df['Units Sold'].sum()
 #print(sales_data)
 
+
 americas_df['Region'].iloc[-1] = americas_df.index[-1]
 #print(americas_df)
+
+'''
+# save updated dataframe to excel file
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl import Workbook
+
+wb = Workbook()
+ws = wb.active
+ws.title = "americas"
+
+for r in dataframe_to_rows(americas_df, index=False, header=True):
+    ws.append(r)
+ 
+wb.save('data//Sales Records processed.xlsx')
+'''
+
+
+#-------------------------------------------------------------------------------------------
+# add average and median for america and output to excel workbook
+americas_df.loc['Median', 'Total Revenue']= americas_df['Total Revenue'].median()
+
+americas_df.loc['Median', 'Total Cost']= americas_df['Total Cost'].median()
+americas_df.loc['Median', 'Total Profit']= americas_df['Total Profit'].median()
+americas_df.loc['Median', 'Units Sold']= americas_df['Units Sold'].median()
+americas_df.loc['Median', 'Unit Price']= americas_df['Unit Price'].median()
+americas_df.loc['Median', 'Unit Cost']= americas_df['Unit Cost'].median()
+
+americas_df['Region'].iloc[-1] = americas_df.index[-1]
+
+americas_df.loc['Mean', 'Total Revenue']= americas_df['Total Revenue'].mean()
+
+
+americas_df.loc['Mean', 'Total Cost']= americas_df['Total Cost'].mean()
+americas_df.loc['Mean', 'Total Profit']= americas_df['Total Profit'].mean()
+americas_df.loc['Mean', 'Units Sold']= americas_df['Units Sold'].mean()
+americas_df.loc['Mean', 'Unit Price']= americas_df['Unit Price'].mean()
+americas_df.loc['Mean', 'Unit Cost']= americas_df['Unit Cost'].mean()
+
+americas_df['Region'].iloc[-1] = americas_df.index[-1]
+
 
 # save updated dataframe to excel file
 from openpyxl.utils.dataframe import dataframe_to_rows
