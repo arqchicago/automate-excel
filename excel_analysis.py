@@ -113,4 +113,17 @@ ws.title = "americas"
 for r in dataframe_to_rows(americas_df, index=False, header=True):
     ws.append(r)
  
+#wb.save('data//Sales Records processed.xlsx')
+
+
+#-------------------------------------------------------------------------------------------
+# format the header
+font_black_bold = openpyxl.styles.Font(color='000000', bold=True)
+bd_thick = openpyxl.styles.Side(style='thick', color="000000")
+
+for cell in ws[1]:
+    cell.font = font_black_bold
+    cell.border = openpyxl.styles.Border(bottom=bd_thick)
+    
+ws.freeze_panes = ws['A2']
 wb.save('data//Sales Records processed.xlsx')
