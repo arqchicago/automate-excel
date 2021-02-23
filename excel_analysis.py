@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import openpyxl
 
 
@@ -46,6 +47,12 @@ print(f'> total profit = {america_profit_total}')
 
 america_profit_total_check = america_rev_total - america_cost_total
 print(f'> total profit (check) = {america_profit_total_check}')
+
+
+#-------------------------------------------------------------------------------------------
+# calculate total profit and compare to the total profit field in excel
+americas_df['Total Profit calc'] =  americas_df['Total Revenue']-americas_df['Total Cost']
+americas_df['Total Profit check']= np.where(abs(americas_df['Total Profit calc']-americas_df['Total Profit'])<=1.0, 'Correct', 'Incorrect!!')
 
 
 #-------------------------------------------------------------------------------------------
@@ -102,6 +109,7 @@ americas_df.loc['Mean', 'Unit Cost']= americas_df['Unit Cost'].mean()
 americas_df['Region'].iloc[-1] = americas_df.index[-1]
 
 
+#-------------------------------------------------------------------------------------------
 # save updated dataframe to excel file
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl import Workbook
@@ -118,13 +126,26 @@ for r in dataframe_to_rows(americas_df, index=False, header=True):
 
 #-------------------------------------------------------------------------------------------
 # format the header
-font_black_bold = openpyxl.styles.Font(color='000000', bold=True)
-bd_thick = openpyxl.styles.Side(style='thick', color="000000")
+#black = 'FF000000', white = 'FFFFFFFF', red = 'FFFF0000', blue = 'FF0000FF', green = 'FF00FF00', yellow = 'FFFFFF00'
+
+    
+font_black_bold = openpyxl.styles.Font(color='FF000000', bold=True)
+font_red_italic = openpyxl.styles.Font(color='FFFF0000', italic=True) 
+bd_thick = openpyxl.styles.Side(style='thick', color="FF000000")
+
+col_nums = len(ws[1])
+calc_cols = 2
+i = 1
 
 for cell in ws[1]:
-    cell.font = font_black_bold
     cell.border = openpyxl.styles.Border(bottom=bd_thick)
-
+    
+    if i > col_nums - calc_cols:
+        cell.font = font_red_italic
+    else:
+        cell.font = font_black_bold
+        
+    i += 1 
 
 #-------------------------------------------------------------------------------------------
 # format the last three rows (total, mean, median)
@@ -135,9 +156,9 @@ max_row = ws.max_row
 # we need to format the last three rows
 rows = [max_row-2, max_row-1, max_row]
 
-font_red_italic = openpyxl.styles.Font(color='FF0000', italic=True)                  
-bd_double = openpyxl.styles.Side(style='double', color="000000")
-bd_thin = openpyxl.styles.Side(style='thin', color="000000")
+font_red_italic = openpyxl.styles.Font(color='FFFF0000', italic=True)                  
+bd_double = openpyxl.styles.Side(style='double', color="FF000000")
+bd_thin = openpyxl.styles.Side(style='thin', color="FF000000")
 
 # apply style to the last 3 rows (total, mean, median)
 for row in rows:
@@ -148,6 +169,10 @@ for row in rows:
             cell.border = openpyxl.styles.Border(top=bd_thin, bottom=bd_double)
         else:
             cell.border = openpyxl.styles.Border(top=bd_thin, bottom=bd_thin)
-            
+
+
+#-------------------------------------------------------------------------------------------
+# format the last three rows (total, mean, median)
+ 
 ws.freeze_panes = ws['A2']
 wb.save('data//Sales Records processed.xlsx')
