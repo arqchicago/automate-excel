@@ -124,6 +124,30 @@ bd_thick = openpyxl.styles.Side(style='thick', color="000000")
 for cell in ws[1]:
     cell.font = font_black_bold
     cell.border = openpyxl.styles.Border(bottom=bd_thick)
-    
+
+
+#-------------------------------------------------------------------------------------------
+# format the last three rows (total, mean, median)
+
+# get maximum number of rows.
+max_row = ws.max_row
+
+# we need to format the last three rows
+rows = [max_row-2, max_row-1, max_row]
+
+font_red_italic = openpyxl.styles.Font(color='FF0000', italic=True)                  
+bd_double = openpyxl.styles.Side(style='double', color="000000")
+bd_thin = openpyxl.styles.Side(style='thin', color="000000")
+
+# apply style to the last 3 rows (total, mean, median)
+for row in rows:
+    for cell in ws[row]:
+        cell.font = font_red_italic
+        
+        if row==max_row:
+            cell.border = openpyxl.styles.Border(top=bd_thin, bottom=bd_double)
+        else:
+            cell.border = openpyxl.styles.Border(top=bd_thin, bottom=bd_thin)
+            
 ws.freeze_panes = ws['A2']
 wb.save('data//Sales Records processed.xlsx')
