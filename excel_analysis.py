@@ -87,24 +87,24 @@ wb.save('data//Sales Records processed.xlsx')
 
 #-------------------------------------------------------------------------------------------
 # add average and median for america and output to excel workbook
-americas_df.loc['Median', 'Total Revenue']= americas_df['Total Revenue'].median()
+americas_df.loc['Median', 'Total Revenue']= americas_df['Total Revenue'].median().round(0)
 
-americas_df.loc['Median', 'Total Cost']= americas_df['Total Cost'].median()
-americas_df.loc['Median', 'Total Profit']= americas_df['Total Profit'].median()
-americas_df.loc['Median', 'Units Sold']= americas_df['Units Sold'].median()
-americas_df.loc['Median', 'Unit Price']= americas_df['Unit Price'].median()
-americas_df.loc['Median', 'Unit Cost']= americas_df['Unit Cost'].median()
+americas_df.loc['Median', 'Total Cost']= americas_df['Total Cost'].median().round(0)
+americas_df.loc['Median', 'Total Profit']= americas_df['Total Profit'].median().round(0)
+americas_df.loc['Median', 'Units Sold']= americas_df['Units Sold'].median().round(0)
+americas_df.loc['Median', 'Unit Price']= americas_df['Unit Price'].median().round(2)
+americas_df.loc['Median', 'Unit Cost']= americas_df['Unit Cost'].median().round(2)
 
 americas_df['Region'].iloc[-1] = americas_df.index[-1]
 
-americas_df.loc['Mean', 'Total Revenue']= americas_df['Total Revenue'].mean()
+americas_df.loc['Mean', 'Total Revenue']= americas_df['Total Revenue'].mean().round(0)
 
 
-americas_df.loc['Mean', 'Total Cost']= americas_df['Total Cost'].mean()
-americas_df.loc['Mean', 'Total Profit']= americas_df['Total Profit'].mean()
-americas_df.loc['Mean', 'Units Sold']= americas_df['Units Sold'].mean()
-americas_df.loc['Mean', 'Unit Price']= americas_df['Unit Price'].mean()
-americas_df.loc['Mean', 'Unit Cost']= americas_df['Unit Cost'].mean()
+americas_df.loc['Mean', 'Total Cost']= americas_df['Total Cost'].mean().round(0)
+americas_df.loc['Mean', 'Total Profit']= americas_df['Total Profit'].mean().round(0)
+americas_df.loc['Mean', 'Units Sold']= americas_df['Units Sold'].mean().round(0)
+americas_df.loc['Mean', 'Unit Price']= americas_df['Unit Price'].mean().round(2)
+americas_df.loc['Mean', 'Unit Cost']= americas_df['Unit Cost'].mean().round(2)
 
 americas_df['Region'].iloc[-1] = americas_df.index[-1]
 
@@ -154,14 +154,14 @@ for cell in ws[1]:
 max_row = ws.max_row
 
 # we need to format the last three rows
-rows = [max_row-2, max_row-1, max_row]
+last_rows = [max_row-2, max_row-1, max_row]
 
 font_red_italic = openpyxl.styles.Font(color='FFFF0000', italic=True)                  
 bd_double = openpyxl.styles.Side(style='double', color="FF000000")
 bd_thin = openpyxl.styles.Side(style='thin', color="FF000000")
 
 # apply style to the last 3 rows (total, mean, median)
-for row in rows:
+for row in last_rows:
     for cell in ws[row]:
         cell.font = font_red_italic
         
@@ -172,7 +172,44 @@ for row in rows:
 
 
 #-------------------------------------------------------------------------------------------
-# format the last three rows (total, mean, median)
+# freeze panes
  
 ws.freeze_panes = ws['A2']
+
+
+#-------------------------------------------------------------------------------------------
+# lets add another sheet and perform some excel functions
+
+# COUNTIF:  count number of orders in which total revenue was over $2m
+count_rev2m = len(americas_df[americas_df['Total Revenue']>2000000])
+count_rev2m_2 = americas_df[americas_df['Total Revenue']>2000000].shape[0]
+
+# SUMIF:  sum the revenue when total revenue was over $2m
+sum_rev2m = americas_df[americas_df['Total Revenue']>2000000]['Total Revenue'].sum()
+
+# AVERAGEIF:  average the total revenue for orders with total revenue over $2m
+avg_rev2m = americas_df[americas_df['Total Revenue']>2000000]['Total Revenue'].mean()
+
+
+#-------------------------------------------------------------------------------------------
+# add these to the Excel workbook in a new sheet
+
+# create a new sheet in the Workbook
+ws2 = wb.create_sheet('americas2')
+
+ws2.cell(row=1, column=1).value = 'Scenario'
+ws2.cell(row=1, column=2).value = 'Value'
+
+scenario_dict = {   'number of orders with total revenue over $2m': count_rev2m, 
+                    'sum of revenue for orders with total revenue over $2m': sum_rev2m, 
+                    'average of revenue for orders with total revenue over $2m': avg_rev2m}
+
+row_id = 2
+
+for key, value in scenario_dict.items():
+    ws2.cell(row=row_id, column=1).value = key
+    ws2.cell(row=row_id, column=2).value = value
+    
+    row_id += 1
+
 wb.save('data//Sales Records processed.xlsx')
