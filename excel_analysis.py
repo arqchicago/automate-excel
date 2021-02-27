@@ -188,7 +188,19 @@ count_rev2m_2 = americas_df[americas_df['Total Revenue']>2000000].shape[0]
 sum_rev2m = americas_df[americas_df['Total Revenue']>2000000]['Total Revenue'].sum()
 
 # AVERAGEIF:  average the total revenue for orders with total revenue over $2m
-avg_rev2m = americas_df[americas_df['Total Revenue']>2000000]['Total Revenue'].mean()
+avg_rev2m = americas_df[americas_df['Total Revenue']>2000000]['Total Revenue'].mean().round(0)
+
+
+#-------------------------------------------------------------------------------------------
+# we can use more complex conditions 
+
+# AVERAGEIF:  average the total revenue for orders with total revenue over $1m, priority being Medium and 
+avg_rev500k_prior_m = americas_df[(americas_df['Total Revenue']>500000) & (americas_df['Order Priority']=='M')]['Total Revenue'].mean().round(0)
+
+# AVERAGEIF:  average the total revenue for household type orders with total revenue over $100k, high priority 
+avg_r100k_ph_th = americas_df[(americas_df['Total Revenue']>100000) & 
+                              (americas_df['Order Priority']=='H') &
+                              (americas_df['Item Type']=='Household')]['Total Revenue'].mean().round(0)
 
 
 #-------------------------------------------------------------------------------------------
@@ -202,7 +214,9 @@ ws2.cell(row=1, column=2).value = 'Value'
 
 scenario_dict = {   'number of orders with total revenue over $2m': count_rev2m, 
                     'sum of revenue for orders with total revenue over $2m': sum_rev2m, 
-                    'average of revenue for orders with total revenue over $2m': avg_rev2m}
+                    'average of revenue for orders with total revenue over $2m': avg_rev2m,
+                    'average of revenue for orders with total revenue over $500k, medium priority': avg_rev500k_prior_m,
+                    'average of revenue for household item orders with total revenue over $100k, high priority': avg_r100k_ph_th}
 
 row_id = 2
 
