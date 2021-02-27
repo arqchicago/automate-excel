@@ -167,6 +167,7 @@ for row in last_rows:
         
         if row==max_row:
             cell.border = openpyxl.styles.Border(top=bd_thin, bottom=bd_double)
+
         else:
             cell.border = openpyxl.styles.Border(top=bd_thin, bottom=bd_thin)
 
@@ -180,27 +181,28 @@ ws.freeze_panes = ws['A2']
 #-------------------------------------------------------------------------------------------
 # lets add another sheet and perform some excel functions
 
-# COUNTIF:  count number of orders in which total revenue was over $2m
-count_rev2m = len(americas_df[americas_df['Total Revenue']>2000000])
-count_rev2m_2 = americas_df[americas_df['Total Revenue']>2000000].shape[0]
+# COUNTIF:  count the number of orders for household items
+count_item_household = len(americas_df[americas_df['Item Type']=='Household'])
+count_item_household_2 = americas_df[americas_df['Item Type']=='Household'].shape[0]
 
-# SUMIF:  sum the revenue when total revenue was over $2m
-sum_rev2m = americas_df[americas_df['Total Revenue']>2000000]['Total Revenue'].sum()
+# SUMIF:  total of revenue for Household items
+sum_item_household = americas_df[americas_df['Item Type']=='Household']['Total Revenue'].sum()
 
-# AVERAGEIF:  average the total revenue for orders with total revenue over $2m
-avg_rev2m = americas_df[americas_df['Total Revenue']>2000000]['Total Revenue'].mean().round(0)
+# AVERAGEIF:  average revenue for Household items
+avg_item_household = americas_df[americas_df['Item Type']=='Household']['Total Revenue'].mean().round(0)
 
 
 #-------------------------------------------------------------------------------------------
 # we can use more complex conditions 
 
-# AVERAGEIF:  average the total revenue for orders with total revenue over $1m, priority being Medium and 
-avg_rev500k_prior_m = americas_df[(americas_df['Total Revenue']>500000) & (americas_df['Order Priority']=='M')]['Total Revenue'].mean().round(0)
+# AVERAGEIF:  average revenue for household items ordered with medium priority 
+avg_item_hh_prior_m = americas_df[(americas_df['Item Type']=='Household') & (americas_df['Order Priority']=='M')]['Total Revenue'].mean().round(0)
 
-# AVERAGEIF:  average the total revenue for household type orders with total revenue over $100k, high priority 
-avg_r100k_ph_th = americas_df[(americas_df['Total Revenue']>100000) & 
-                              (americas_df['Order Priority']=='H') &
-                              (americas_df['Item Type']=='Household')]['Total Revenue'].mean().round(0)
+# AVERAGEIF:  average for high revenue orders (greater than $100k) for household items ordered with high priority 
+avg_r1m_ihh_ph = americas_df[(americas_df['Total Revenue']>1000000) & 
+                               (americas_df['Item Type']=='Household') &
+                               (americas_df['Order Priority']=='H')]['Total Revenue'].mean().round(0)
+
 
 
 #-------------------------------------------------------------------------------------------
@@ -212,18 +214,36 @@ ws2 = wb.create_sheet('americas2')
 ws2.cell(row=1, column=1).value = 'Scenario'
 ws2.cell(row=1, column=2).value = 'Value'
 
-scenario_dict = {   'number of orders with total revenue over $2m': count_rev2m, 
-                    'sum of revenue for orders with total revenue over $2m': sum_rev2m, 
-                    'average of revenue for orders with total revenue over $2m': avg_rev2m,
-                    'average of revenue for orders with total revenue over $500k, medium priority': avg_rev500k_prior_m,
-                    'average of revenue for household item orders with total revenue over $100k, high priority': avg_r100k_ph_th}
+# let's use python dictionary to store the calculations and give them definitions
+scenario_dict = {   'number of orders for household items': count_item_household, 
+                    'sum of revenue for household items': sum_item_household, 
+                    'average revenue for household items': avg_item_household,
+                    'average revenue for household items ordered with medium priority': avg_item_hh_prior_m,
+                    'average for high revenue orders (> $1m) for household items ordered with high priority': avg_r1m_ihh_ph}
 
 row_id = 2
+
+# let's now use the dictionary to enter data in excel file. 
+# we will also do some formating for numeric values
+
+from openpyxl.styles import Font
+
+value_fmt = u'$#,###'
+bd_thick = openpyxl.styles.Side(style='thick', color="FF000000")
+font_black_bold = openpyxl.styles.Font(color='FF000000', bold=True)
 
 for key, value in scenario_dict.items():
     ws2.cell(row=row_id, column=1).value = key
     ws2.cell(row=row_id, column=2).value = value
+
+    if row_id>2:    
+        ws2.cell(row=row_id, column=2).number_format = value_fmt
     
     row_id += 1
+
+
+for cell in ws2[1]:
+    cell.border = openpyxl.styles.Border(bottom=bd_thick)
+    cell.font = font_black_bold
 
 wb.save('data//Sales Records processed.xlsx')
