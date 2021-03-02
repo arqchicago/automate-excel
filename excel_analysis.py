@@ -198,6 +198,9 @@ avg_item_household = americas_df[americas_df['Item Type']=='Household']['Total R
 # AVERAGEIF:  average revenue for household items ordered with medium priority 
 avg_item_hh_prior_m = americas_df[(americas_df['Item Type']=='Household') & (americas_df['Order Priority']=='M')]['Total Revenue'].mean().round(0)
 
+# SUMIF:  sum revenue for household items ordered with medium priority 
+sum_item_hh_prior_m = americas_df[(americas_df['Item Type']=='Household') & (americas_df['Order Priority']=='M')]['Total Revenue'].sum()
+
 # AVERAGEIF:  average for high revenue orders (greater than $100k) for household items ordered with high priority 
 avg_r1m_ihh_ph = americas_df[(americas_df['Total Revenue']>1000000) & 
                                (americas_df['Item Type']=='Household') &
@@ -218,6 +221,7 @@ ws2.cell(row=1, column=2).value = 'Value'
 scenario_dict = {   'number of orders for household items': count_item_household, 
                     'sum of revenue for household items': sum_item_household, 
                     'average revenue for household items': avg_item_household,
+                    'sum revenue for household items ordered with medium priority': sum_item_hh_prior_m,
                     'average revenue for household items ordered with medium priority': avg_item_hh_prior_m,
                     'average for high revenue orders (> $1m) for household items ordered with high priority': avg_r1m_ihh_ph}
 
