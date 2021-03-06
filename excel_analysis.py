@@ -24,7 +24,10 @@ print(americas_df)
 header = americas_df.iloc[0]
 americas_df = americas_df[1:]
 americas_df.columns = header
-print(americas_df)
+print(americas_df.dtypes)
+
+cols = ['Units Sold', 'Unit Price', 'Unit Cost', 'Total Revenue', 'Total Cost', 'Total Profit']
+americas_df[cols] = americas_df[cols].apply(pd.to_numeric, downcast='float', errors='coerce')
 
 americas_shape = americas_df.shape
 print(f'> rows: ',americas_shape[0])
@@ -60,14 +63,14 @@ americas_df['Total Profit check']= np.where(abs(americas_df['Total Profit calc']
 americas_df.loc['Total', 'Total Revenue']= americas_df['Total Revenue'].sum()
 #print(sales_data)
 
+
 americas_df.loc['Total', 'Total Cost']= americas_df['Total Cost'].sum()
 americas_df.loc['Total', 'Total Profit']= americas_df['Total Profit'].sum()
 americas_df.loc['Total', 'Units Sold']= americas_df['Units Sold'].sum()
 #print(sales_data)
 
 
-americas_df['Region'].iloc[-1] = americas_df.index[-1]
-#print(americas_df)
+americas_df.iloc[-1, americas_df.columns.get_loc('Region')] = americas_df.index[-1]
 
 '''
 # save updated dataframe to excel file
@@ -87,13 +90,14 @@ wb.save('data//Sales Records processed.xlsx')
 
 #-------------------------------------------------------------------------------------------
 # add average and median for america and output to excel workbook
-americas_df.loc['Median', 'Total Revenue']= americas_df['Total Revenue'].median().round(0)
+americas_df.loc['Median', 'Total Revenue']= americas_df['Total Revenue'].median()  #.round(2)
 
-americas_df.loc['Median', 'Total Cost']= americas_df['Total Cost'].median().round(0)
-americas_df.loc['Median', 'Total Profit']= americas_df['Total Profit'].median().round(0)
-americas_df.loc['Median', 'Units Sold']= americas_df['Units Sold'].median().round(0)
-americas_df.loc['Median', 'Unit Price']= americas_df['Unit Price'].median().round(2)
-americas_df.loc['Median', 'Unit Cost']= americas_df['Unit Cost'].median().round(2)
+americas_df.loc['Median', 'Total Cost']= americas_df['Total Cost'].median()
+americas_df.loc['Median', 'Total Profit']= americas_df['Total Profit'].median()
+americas_df.loc['Median', 'Units Sold']= americas_df['Units Sold'].median()
+americas_df.loc['Median', 'Unit Price']= americas_df['Unit Price'].median()
+americas_df.loc['Median', 'Unit Cost']= americas_df['Unit Cost'].median()
+
 
 americas_df['Region'].iloc[-1] = americas_df.index[-1]
 
@@ -249,5 +253,24 @@ for key, value in scenario_dict.items():
 for cell in ws2[1]:
     cell.border = openpyxl.styles.Border(bottom=bd_thick)
     cell.font = font_black_bold
+
+
+
+#-------------------------------------------------------------------------------------------
+# add these to the Excel workbook in a new sheet
+
+# create a new sheet in the Workbook
+ws3 = wb.create_sheet('cosmetics')
+
+cosmetics_df = americas_df[americas_df['Item Type']=='Cosmetics']
+grouped_df = cosmetics_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].sum()
+
+print(grouped_df)
+
+
+
+ws3.cell(row=1, column=1).value = 'Scenario'
+ws3.cell(row=1, column=2).value = 'Value'
+
 
 wb.save('data//Sales Records processed.xlsx')
