@@ -1,4 +1,6 @@
 import pandas as pd
+pd.set_option('display.float_format', '{:.2f}'.format)
+
 import numpy as np
 import openpyxl
 
@@ -26,9 +28,16 @@ americas_df = americas_df[1:]
 americas_df.columns = header
 print(americas_df.dtypes)
 
-cols = ['Units Sold', 'Unit Price', 'Unit Cost', 'Total Revenue', 'Total Cost', 'Total Profit']
-americas_df[cols] = americas_df[cols].apply(pd.to_numeric, downcast='float', errors='coerce')
-
+#americas_df['Order Date']= pd.to_datetime(americas_df['Order Date'])
+americas_df = americas_df.astype({  'Units Sold': 'int', 
+                                    'Unit Price': 'float', 
+                                    'Unit Cost': 'float', 
+                                    'Total Revenue': 'float', 
+                                    'Total Cost': 'float', 
+                                    'Total Profit': 'float'})
+                                    
+                                    
+#print(americas_df.dtypes)
 americas_shape = americas_df.shape
 print(f'> rows: ',americas_shape[0])
 print(f'> columns: ',americas_shape[1])
@@ -60,15 +69,10 @@ americas_df['Total Profit check']= np.where(abs(americas_df['Total Profit calc']
 
 #-------------------------------------------------------------------------------------------
 # add grand total of revenue for america and output to excel workbook
-americas_df.loc['Total', 'Total Revenue']= americas_df['Total Revenue'].sum()
-#print(sales_data)
-
-
-americas_df.loc['Total', 'Total Cost']= americas_df['Total Cost'].sum()
-americas_df.loc['Total', 'Total Profit']= americas_df['Total Profit'].sum()
-americas_df.loc['Total', 'Units Sold']= americas_df['Units Sold'].sum()
-#print(sales_data)
-
+americas_df.loc['Total', 'Total Revenue']= round(americas_df['Total Revenue'].sum(), 0)
+americas_df.loc['Total', 'Total Cost']= round(americas_df['Total Cost'].sum(), 0)
+americas_df.loc['Total', 'Total Profit']= round(americas_df['Total Profit'].sum(), 0)
+americas_df.loc['Total', 'Units Sold']= round(americas_df['Units Sold'].sum(), 0)
 
 americas_df.iloc[-1, americas_df.columns.get_loc('Region')] = americas_df.index[-1]
 
@@ -90,28 +94,28 @@ wb.save('data//Sales Records processed.xlsx')
 
 #-------------------------------------------------------------------------------------------
 # add average and median for america and output to excel workbook
-americas_df.loc['Median', 'Total Revenue']= americas_df['Total Revenue'].median()  #.round(2)
+americas_df.loc['Median', 'Total Revenue']= round(americas_df['Total Revenue'].median(),2)
 
-americas_df.loc['Median', 'Total Cost']= americas_df['Total Cost'].median()
-americas_df.loc['Median', 'Total Profit']= americas_df['Total Profit'].median()
-americas_df.loc['Median', 'Units Sold']= americas_df['Units Sold'].median()
-americas_df.loc['Median', 'Unit Price']= americas_df['Unit Price'].median()
-americas_df.loc['Median', 'Unit Cost']= americas_df['Unit Cost'].median()
+americas_df.loc['Median', 'Total Cost']= round(americas_df['Total Cost'].median(),2)
+americas_df.loc['Median', 'Total Profit']= round(americas_df['Total Profit'].median(),2)
+americas_df.loc['Median', 'Units Sold']= round(americas_df['Units Sold'].median(),2)
+americas_df.loc['Median', 'Unit Price']= round(americas_df['Unit Price'].median(),2)
+americas_df.loc['Median', 'Unit Cost']= round(americas_df['Unit Cost'].median(),2)
 
-
-americas_df['Region'].iloc[-1] = americas_df.index[-1]
-
-americas_df.loc['Mean', 'Total Revenue']= americas_df['Total Revenue'].mean().round(0)
+#americas_df['Region'].iloc[-1] = americas_df.index[-1]
+americas_df.iloc[-1, americas_df.columns.get_loc('Region')] = americas_df.index[-1]
 
 
-americas_df.loc['Mean', 'Total Cost']= americas_df['Total Cost'].mean().round(0)
-americas_df.loc['Mean', 'Total Profit']= americas_df['Total Profit'].mean().round(0)
-americas_df.loc['Mean', 'Units Sold']= americas_df['Units Sold'].mean().round(0)
-americas_df.loc['Mean', 'Unit Price']= americas_df['Unit Price'].mean().round(2)
-americas_df.loc['Mean', 'Unit Cost']= americas_df['Unit Cost'].mean().round(2)
+americas_df.loc['Mean', 'Total Revenue']= round(americas_df['Total Revenue'].mean(),2)
+americas_df.loc['Mean', 'Total Cost']= round(americas_df['Total Cost'].mean(),2)
+americas_df.loc['Mean', 'Total Profit']= round(americas_df['Total Profit'].mean(),2)
+americas_df.loc['Mean', 'Units Sold']= round(americas_df['Units Sold'].mean(),2)
+americas_df.loc['Mean', 'Unit Price']= round(americas_df['Unit Price'].mean(),2)
+americas_df.loc['Mean', 'Unit Cost']= round(americas_df['Unit Cost'].mean(),2)
 
-americas_df['Region'].iloc[-1] = americas_df.index[-1]
-
+#americas_df['Region'].iloc[-1] = americas_df.index[-1]
+americas_df.iloc[-1, americas_df.columns.get_loc('Region')] = americas_df.index[-1]
+print(americas_df)
 
 #-------------------------------------------------------------------------------------------
 # save updated dataframe to excel file
@@ -193,22 +197,22 @@ count_item_household_2 = americas_df[americas_df['Item Type']=='Household'].shap
 sum_item_household = americas_df[americas_df['Item Type']=='Household']['Total Revenue'].sum()
 
 # AVERAGEIF:  average revenue for Household items
-avg_item_household = americas_df[americas_df['Item Type']=='Household']['Total Revenue'].mean().round(0)
+avg_item_household = round(americas_df[americas_df['Item Type']=='Household']['Total Revenue'].mean(), 0)
 
 
 #-------------------------------------------------------------------------------------------
 # we can use more complex conditions 
 
 # AVERAGEIF:  average revenue for household items ordered with medium priority 
-avg_item_hh_prior_m = americas_df[(americas_df['Item Type']=='Household') & (americas_df['Order Priority']=='M')]['Total Revenue'].mean().round(0)
+avg_item_hh_prior_m = round(americas_df[(americas_df['Item Type']=='Household') & (americas_df['Order Priority']=='M')]['Total Revenue'].mean(), 0)
 
 # SUMIF:  sum revenue for household items ordered with medium priority 
 sum_item_hh_prior_m = americas_df[(americas_df['Item Type']=='Household') & (americas_df['Order Priority']=='M')]['Total Revenue'].sum()
 
 # AVERAGEIF:  average for high revenue orders (greater than $100k) for household items ordered with high priority 
-avg_r1m_ihh_ph = americas_df[(americas_df['Total Revenue']>1000000) & 
-                               (americas_df['Item Type']=='Household') &
-                               (americas_df['Order Priority']=='H')]['Total Revenue'].mean().round(0)
+avg_r1m_ihh_ph = round(americas_df[ (americas_df['Total Revenue']>1000000) & 
+                                    (americas_df['Item Type']=='Household') &
+                                    (americas_df['Order Priority']=='H')]['Total Revenue'].mean(), 0)
 
 
 
