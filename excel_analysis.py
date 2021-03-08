@@ -261,20 +261,37 @@ for cell in ws2[1]:
 
 
 #-------------------------------------------------------------------------------------------
-# add these to the Excel workbook in a new sheet
+# create a summary table that provides average profit per country for one particular item
 
-# create a new sheet in the Workbook
+# let's pick cosmetics and create the table in a new sheet.
 ws3 = wb.create_sheet('cosmetics')
 
 cosmetics_df = americas_df[americas_df['Item Type']=='Cosmetics']
-grouped_df = cosmetics_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].sum()
-
+grouped_df = cosmetics_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].mean()
 print(grouped_df)
 
+# save the dataframe to the cosmetics sheet
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl import Workbook
 
+value_fmt = u'$#,###.##'
+bd_thick = openpyxl.styles.Side(style='thick', color="FF000000")
+font_black_bold = openpyxl.styles.Font(color='FF000000', bold=True)
 
-ws3.cell(row=1, column=1).value = 'Scenario'
-ws3.cell(row=1, column=2).value = 'Value'
+row_id = 1
+for r in dataframe_to_rows(grouped_df, index=False, header=True):
+    ws3.append(r)
 
+    if row_id>1:    
+        ws3.cell(row=row_id, column=2).number_format = value_fmt
+    
+    row_id += 1
 
+# let's update the second column header to "Average Profit" instead of "Total Profit"
+ws3.cell(row=1, column=2).value = 'Average Profit'
+
+for cell in ws3[1]:
+    cell.border = openpyxl.styles.Border(bottom=bd_thick)
+    cell.font = font_black_bold
+    
 wb.save('data//Sales Records processed.xlsx')
