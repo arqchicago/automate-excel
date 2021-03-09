@@ -282,16 +282,113 @@ row_id = 1
 for r in dataframe_to_rows(grouped_df, index=False, header=True):
     ws3.append(r)
 
+    # this will apply the $ and comma format for dollar figures
     if row_id>1:    
         ws3.cell(row=row_id, column=2).number_format = value_fmt
+
+    # let's update the second column header to "Average Profit" instead of "Total Profit"
+    if row_id==1:    
+        ws3.cell(row=row_id, column=2).value = 'Average Profit'
+        
+        for cell in ws3[row_id]:
+            cell.border = openpyxl.styles.Border(bottom=bd_thick)
+            cell.font = font_black_bold
     
     row_id += 1
 
-# let's update the second column header to "Average Profit" instead of "Total Profit"
-ws3.cell(row=1, column=2).value = 'Average Profit'
+#-------------------------------------------------------------------------------------------
+# create multiple summary tables that provide average profit per country for multiple items
 
-for cell in ws3[1]:
-    cell.border = openpyxl.styles.Border(bottom=bd_thick)
-    cell.font = font_black_bold
+# let's first create a new sheet called summary
+ws4 = wb.create_sheet('summary')
+
+fruits_df = americas_df[americas_df['Item Type']=='Fruits']
+fruits_grouped_df = fruits_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].mean()
+#print(fruits_grouped_df)
+
+vegetables_df = americas_df[americas_df['Item Type']=='Vegetables']
+vegetables_grouped_df = vegetables_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].mean()
+#print(vegetables_grouped_df)
+
+meat_df = americas_df[americas_df['Item Type']=='Meat']
+meat_grouped_df = meat_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].mean()
+#print(meat_grouped_df)
+
+
+# save the dataframe to the cosmetics sheet
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl import Workbook
+
+value_fmt = u'$#,###.##'
+bd_thick = openpyxl.styles.Side(style='thick', color="FF000000")
+font_black_bold = openpyxl.styles.Font(color='FF000000', bold=True)
+
+
+row_id = 1
+tot_row_id = 1
+
+for r in dataframe_to_rows(fruits_grouped_df, index=False, header=True):
+    ws4.append(r)
+
+    # this will apply the $ and comma format for dollar figures
+    if row_id>1:    
+        ws4.cell(row=tot_row_id, column=2).number_format = value_fmt
     
+    # let's update the second column header to "Fruits Average Profit" instead of "Total Profit"
+    if row_id==1:
+        ws4.cell(row=tot_row_id, column=2).value = 'Fruits Average Profit'
+        
+        for cell in ws4[tot_row_id]:
+            cell.border = openpyxl.styles.Border(bottom=bd_thick)
+            cell.font = font_black_bold
+
+    row_id += 1
+    tot_row_id += 1
+
+
+row_id = 1
+ws4.append(['', ''])
+tot_row_id += 1
+
+for r in dataframe_to_rows(vegetables_grouped_df, index=False, header=True):
+    ws4.append(r)
+
+    # this will apply the $ and comma format for dollar figures
+    if row_id>1:    
+        ws4.cell(row=tot_row_id, column=2).number_format = value_fmt
+    
+    # let's update the second column header to "Vegetables Average Profit" instead of "Total Profit"
+    if row_id==1:
+        ws4.cell(row=tot_row_id, column=2).value = 'Vegetables Average Profit'
+        
+        for cell in ws4[tot_row_id]:
+            cell.border = openpyxl.styles.Border(bottom=bd_thick)
+            cell.font = font_black_bold
+
+    row_id += 1
+    tot_row_id += 1
+
+
+row_id = 1
+ws4.append(['', ''])
+tot_row_id += 1
+
+for r in dataframe_to_rows(meat_grouped_df, index=False, header=True):
+    ws4.append(r)
+
+    # this will apply the $ and comma format for dollar figures
+    if row_id>1:    
+        ws4.cell(row=tot_row_id, column=2).number_format = value_fmt
+    
+    # let's update the second column header to "Meat Average Profit" instead of "Total Profit"
+    if row_id==1:
+        ws4.cell(row=tot_row_id, column=2).value = 'Meat Average Profit'
+        
+        for cell in ws4[tot_row_id]:
+            cell.border = openpyxl.styles.Border(bottom=bd_thick)
+            cell.font = font_black_bold
+
+    row_id += 1
+    tot_row_id += 1
+
 wb.save('data//Sales Records processed.xlsx')
