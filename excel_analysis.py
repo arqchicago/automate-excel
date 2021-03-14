@@ -391,4 +391,30 @@ for r in dataframe_to_rows(meat_grouped_df, index=False, header=True):
     row_id += 1
     tot_row_id += 1
 
+
+
+
+
+#-------------------------------------------------------------------------------------------
+# create multiple summary tables with an alternate 
+
+# let's first create a new sheet called summary
+ws5 = wb.create_sheet('summary2')
+
+fruits_df = americas_df[americas_df['Item Type']=='Fruits']
+fruits_grouped_df = fruits_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].mean()
+print(fruits_grouped_df)
+
+vegetables_df = americas_df[americas_df['Item Type']=='Vegetables']
+vegetables_grouped_df = vegetables_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].mean()
+print(vegetables_grouped_df)
+
+meat_df = americas_df[americas_df['Item Type']=='Meat']
+meat_grouped_df = meat_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].mean()
+print(meat_grouped_df)
+
+
+combined_df = pd.merge(fruits_grouped_df, vegetables_grouped_df, how='left', on=['Country'])
+print(combined_df)
+
 wb.save('data//Sales Records processed.xlsx')
