@@ -415,8 +415,36 @@ print(meat_grouped_df)
 
 
 combined_df1 = pd.merge(fruits_grouped_df.rename(columns={'Total Profit':'Fruit Avg Profit'}), vegetables_grouped_df.rename(columns={'Total Profit':'Vegetables Avg Profit'}), how='left', on=['Country'])
-combined_df2 = pd.merge(combined_df1, meat_grouped_df.rename(columns={'Total Profit':'Meat Avg Profit'}), how='left', on=['Country']).fillna(0)
-
+combined_df2 = pd.merge(combined_df1, meat_grouped_df.rename(columns={'Total Profit':'Meat Avg Profit'}), how='left', on=['Country']).fillna(0.0001)
 print(combined_df2)
+
+
+value_fmt = u'$#,###.##'
+bd_thick = openpyxl.styles.Side(style='thick', color="FF000000")
+font_black_bold = openpyxl.styles.Font(color='FF000000', bold=True)
+
+row_id = 1
+tot_row_id = 1
+
+for r in dataframe_to_rows(combined_df2, index=False, header=True):
+    ws5.append(r)
+
+    # this will apply the $ and comma format for dollar figures
+    if row_id>1:    
+        ws5.cell(row=tot_row_id, column=2).number_format = value_fmt
+        ws5.cell(row=tot_row_id, column=3).number_format = value_fmt
+        ws5.cell(row=tot_row_id, column=4).number_format = value_fmt
+
+    '''
+    # let's update the second column header to "Vegetables Average Profit" instead of "Total Profit"
+    if row_id==1:
+        ws5.cell(row=tot_row_id, column=2).value = 'Vegetables Average Profit'
+        
+        for cell in ws5[tot_row_id]:
+            cell.border = openpyxl.styles.Border(bottom=bd_thick)
+            cell.font = font_black_bold
+    '''
+    row_id += 1
+    tot_row_id += 1
 
 wb.save('data//Sales Records processed.xlsx')
