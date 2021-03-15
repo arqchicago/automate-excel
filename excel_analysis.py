@@ -414,7 +414,9 @@ meat_grouped_df = meat_df[['Country', 'Total Profit']].groupby('Country', as_ind
 print(meat_grouped_df)
 
 
-combined_df = pd.merge(fruits_grouped_df, vegetables_grouped_df, how='left', on=['Country'])
-print(combined_df)
+combined_df1 = pd.merge(fruits_grouped_df.rename(columns={'Total Profit':'Fruit Avg Profit'}), vegetables_grouped_df.rename(columns={'Total Profit':'Vegetables Avg Profit'}), how='left', on=['Country'])
+combined_df2 = pd.merge(combined_df1, meat_grouped_df.rename(columns={'Total Profit':'Meat Avg Profit'}), how='left', on=['Country']).fillna(0)
+
+print(combined_df2)
 
 wb.save('data//Sales Records processed.xlsx')
