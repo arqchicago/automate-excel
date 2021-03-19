@@ -435,16 +435,23 @@ for r in dataframe_to_rows(combined_df2, index=False, header=True):
         ws5.cell(row=tot_row_id, column=3).number_format = value_fmt
         ws5.cell(row=tot_row_id, column=4).number_format = value_fmt
 
-    '''
-    # let's update the second column header to "Vegetables Average Profit" instead of "Total Profit"
     if row_id==1:
-        ws5.cell(row=tot_row_id, column=2).value = 'Vegetables Average Profit'
         
         for cell in ws5[tot_row_id]:
             cell.border = openpyxl.styles.Border(bottom=bd_thick)
             cell.font = font_black_bold
-    '''
     row_id += 1
     tot_row_id += 1
+
+
+
+#-------------------------------------------------------------------------------------------
+# create pivot tables 
+
+# let's first create a new sheet called summary
+ws5 = wb.create_sheet('pivot')
+
+table = pd.pivot_table(americas_df, values=['Total Revenue'], index=['Country'], columns=['Order Priority'], aggfunc=np.sum, fill_value=0)                             
+print(table)
 
 wb.save('data//Sales Records processed.xlsx')
