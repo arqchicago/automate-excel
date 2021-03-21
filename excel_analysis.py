@@ -66,6 +66,12 @@ print(f'> total profit (check) = {america_profit_total_check}')
 americas_df['Total Profit calc'] =  americas_df['Total Revenue']-americas_df['Total Cost']
 americas_df['Total Profit check']= np.where(abs(americas_df['Total Profit calc']-americas_df['Total Profit'])<=1.0, 'Correct', 'Incorrect!!')
 
+americas_df.loc[(americas_df['Sales Channel'] == 'Online') & (americas_df['Order Priority'].isin(['H','M','C'])), 'Process Priority'] = 'Urgent'
+americas_df.loc[(americas_df['Sales Channel'] == 'Online') & (americas_df['Order Priority']=='L'), 'Process Priority'] = 'Medium'
+americas_df.loc[americas_df['Sales Channel'] == 'Offline', 'Process Priority'] = 'Low'
+
+americas_df['High Rev Urgent'] = 'No'
+americas_df.loc[(americas_df['Process Priority'] == 'Urgent') & (americas_df['Total Revenue'] > 1000000), 'High Rev Urgent'] = 'Yes'
 
 #-------------------------------------------------------------------------------------------
 # add grand total of revenue for america and output to excel workbook
@@ -115,7 +121,7 @@ americas_df.loc['Mean', 'Unit Cost']= round(americas_df['Unit Cost'].mean(),2)
 
 #americas_df['Region'].iloc[-1] = americas_df.index[-1]
 americas_df.iloc[-1, americas_df.columns.get_loc('Region')] = americas_df.index[-1]
-print(americas_df)
+print(">>", americas_df)
 
 #-------------------------------------------------------------------------------------------
 # save updated dataframe to excel file
@@ -142,7 +148,7 @@ font_red_italic = openpyxl.styles.Font(color='FFFF0000', italic=True)
 bd_thick = openpyxl.styles.Side(style='thick', color="FF000000")
 
 col_nums = len(ws[1])
-calc_cols = 2
+calc_cols = 4
 i = 1
 
 for cell in ws[1]:
@@ -489,7 +495,7 @@ for r in dataframe_to_rows(table_df, index=False, header=True):
 # let's first create a new sheet called summary
 ws7 = wb.create_sheet('pivot_2')
 
-table2 = pd.pivot_table(americas_df, values=['Total Revenue'], index=['Country'], columns=['Item Type', 'Order Priority'], aggfunc=np.sum, fill_value=0)                             
+table2 = pd.pivot_table(americas_df, values=['Total Revenue'], index=['Country', 'Sales Channel'], columns=['Item Type', 'Order Priority'], aggfunc=np.sum, fill_value=0)                             
 print(table2)
 
 table2_df = pd.DataFrame(table2.to_records()).fillna(0)
