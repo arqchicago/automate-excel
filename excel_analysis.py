@@ -455,7 +455,7 @@ table = pd.pivot_table(americas_df, values=['Total Revenue'], index=['Country'],
 print(table)
 
 table_df = pd.DataFrame(table.to_records())
-table_df.columns = [hdr.replace("('Total Revenue', ", "Revenue_").replace(")", "").replace("'", "") for hdr in table_df.columns]
+table_df.columns = [col.replace("('Total Revenue', ", "Revenue_").replace(")", "").replace("'", "") for col in table_df.columns]
 print(table_df)
 
 value_fmt = u'$#,###'
@@ -481,4 +481,44 @@ for r in dataframe_to_rows(table_df, index=False, header=True):
             cell.font = font_black_bold
     row_id += 1
     tot_row_id += 1
+
+
+#-------------------------------------------------------------------------------------------
+# more pivot tables 
+
+# let's first create a new sheet called summary
+ws7 = wb.create_sheet('pivot_2')
+
+table2 = pd.pivot_table(americas_df, values=['Total Revenue'], index=['Country'], columns=['Item Type', 'Order Priority'], aggfunc=np.sum, fill_value=0)                             
+print(table2)
+
+table2_df = pd.DataFrame(table2.to_records()).fillna(0)
+table2_df.columns = [col.replace("('Total Revenue', ", "Revenue_").replace(")", "").replace("'", "").replace(", ", "_") for col in table2_df.columns]
+print(table2_df)
+
+value_fmt = u'$#,###'
+bd_thick = openpyxl.styles.Side(style='thick', color="FF000000")
+font_black_bold = openpyxl.styles.Font(color='FF000000', bold=True)
+
+row_id = 1
+tot_row_id = 1
+n_col = len(table2_df.columns)
+
+for r in dataframe_to_rows(table2_df, index=False, header=True):
+    ws7.append(r)
+
+    # this will apply the $ and comma format for dollar figures
+    if row_id>1:
+        for i in range(2, n_col+1):
+            ws7.cell(row=tot_row_id, column=i).number_format = value_fmt
+
+    if row_id==1:
+        for cell in ws7[tot_row_id]:
+            cell.border = openpyxl.styles.Border(bottom=bd_thick)
+            cell.font = font_black_bold
+    row_id += 1
+    tot_row_id += 1
+
+
+
 wb.save('data//Sales Records processed.xlsx')
