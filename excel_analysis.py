@@ -449,9 +449,36 @@ for r in dataframe_to_rows(combined_df2, index=False, header=True):
 # create pivot tables 
 
 # let's first create a new sheet called summary
-ws5 = wb.create_sheet('pivot')
+ws6 = wb.create_sheet('pivot')
 
 table = pd.pivot_table(americas_df, values=['Total Revenue'], index=['Country'], columns=['Order Priority'], aggfunc=np.sum, fill_value=0)                             
 print(table)
 
+table_df = pd.DataFrame(table.to_records())
+table_df.columns = [hdr.replace("('Total Revenue', ", "Revenue_").replace(")", "").replace("'", "") for hdr in table_df.columns]
+print(table_df)
+
+value_fmt = u'$#,###.##'
+bd_thick = openpyxl.styles.Side(style='thick', color="FF000000")
+font_black_bold = openpyxl.styles.Font(color='FF000000', bold=True)
+
+row_id = 1
+tot_row_id = 1
+
+for r in dataframe_to_rows(table_df, index=False, header=True):
+    ws6.append(r)
+
+    # this will apply the $ and comma format for dollar figures
+    if row_id>1:    
+        ws6.cell(row=tot_row_id, column=2).number_format = value_fmt
+        ws6.cell(row=tot_row_id, column=3).number_format = value_fmt
+        ws6.cell(row=tot_row_id, column=4).number_format = value_fmt
+        ws6.cell(row=tot_row_id, column=5).number_format = value_fmt
+
+    if row_id==1:
+        for cell in ws6[tot_row_id]:
+            cell.border = openpyxl.styles.Border(bottom=bd_thick)
+            cell.font = font_black_bold
+    row_id += 1
+    tot_row_id += 1
 wb.save('data//Sales Records processed.xlsx')
