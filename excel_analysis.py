@@ -458,7 +458,7 @@ table_df = pd.DataFrame(table.to_records())
 table_df.columns = [hdr.replace("('Total Revenue', ", "Revenue_").replace(")", "").replace("'", "") for hdr in table_df.columns]
 print(table_df)
 
-value_fmt = u'$#,###.##'
+value_fmt = u'$#,###'
 bd_thick = openpyxl.styles.Side(style='thick', color="FF000000")
 font_black_bold = openpyxl.styles.Font(color='FF000000', bold=True)
 
