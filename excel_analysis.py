@@ -20,16 +20,16 @@ print(f'> excel sheet names: ',sheets)
 # get rows and columns for data in 'americas' sheet
 americas_sheet = workbook['americas']
 americas_data = americas_sheet.values
-americas_df = pd.DataFrame(americas_data)
-print(americas_df)  
+americas_df_orig = pd.DataFrame(americas_data)
+print(americas_df_orig)  
 
-header = americas_df.iloc[0]
-americas_df = americas_df[1:]
-americas_df.columns = header
-print(americas_df.dtypes)
+header = americas_df_orig.iloc[0]
+americas_df_orig = americas_df_orig[1:]
+americas_df_orig.columns = header
+print(americas_df_orig.dtypes)
 
 #americas_df['Order Date']= pd.to_datetime(americas_df['Order Date'])
-americas_df = americas_df.astype({  'Units Sold': 'int', 
+americas_df_orig = americas_df_orig.astype({  'Units Sold': 'int', 
                                     'Unit Price': 'float', 
                                     'Unit Cost': 'float', 
                                     'Total Revenue': 'float', 
@@ -38,10 +38,11 @@ americas_df = americas_df.astype({  'Units Sold': 'int',
                                     
                                     
 #print(americas_df.dtypes)
-americas_shape = americas_df.shape
+americas_shape = americas_df_orig.shape
 print(f'> rows: ',americas_shape[0])
 print(f'> columns: ',americas_shape[1])
 
+americas_df = americas_df_orig.copy()
 
 #-------------------------------------------------------------------------------------------
 # let's do some calculations
@@ -489,10 +490,7 @@ for r in dataframe_to_rows(table_df, index=False, header=True):
     tot_row_id += 1
 
 
-#-------------------------------------------------------------------------------------------
-# more pivot tables 
-
-# let's first create a new sheet called summary
+# let's now create another pivot table with two-level columns
 ws7 = wb.create_sheet('pivot_2')
 
 table2 = pd.pivot_table(americas_df, values=['Total Revenue'], index=['Country', 'Sales Channel'], columns=['Item Type', 'Order Priority'], aggfunc=np.sum, fill_value=0)                             
@@ -526,5 +524,143 @@ for r in dataframe_to_rows(table2_df, index=False, header=True):
     tot_row_id += 1
 
 
+# now let's create the same pivot table but include count values
+ws8 = wb.create_sheet('pivot_3')
+
+table3 = pd.pivot_table(americas_df, values=['Units Sold'], index=['Country', 'Sales Channel'], columns=['Item Type', 'Order Priority'], aggfunc='sum', fill_value=0)                             
+print(table3)
+
+table3_df = pd.DataFrame(table3.to_records()).fillna(0)
+table3_df.columns = [col.replace("('Total Revenue', ", "Revenue_").replace(")", "").replace("(", "").replace("'", "").replace(", ", "_") for col in table3_df.columns]
+print(table3_df)
+
+
+value_fmt = u'#,###'
+bd_thick = openpyxl.styles.Side(style='thick', color="FF000000")
+font_black_bold = openpyxl.styles.Font(color='FF000000', bold=True)
+
+row_id = 1
+tot_row_id = 1
+
+for r in dataframe_to_rows(table3_df, index=False, header=True):
+    ws8.append(r)
+
+    if row_id==1:
+        for cell in ws8[tot_row_id]:
+            cell.border = openpyxl.styles.Border(bottom=bd_thick)
+            cell.font = font_black_bold
+    row_id += 1
+    tot_row_id += 1
+    
+
+
+
+#-------------------------------------------------------------------------------------------
+# graphical analysis
+# bar chart
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+plt.style.use('seaborn')
+
+fig, ax = plt.subplots(figsize=(20,10))
+
+value_fmt = '${x:,.0f}'
+
+ws9 = wb.create_sheet('graphs')
+
+cosmetics_df = americas_df[americas_df['Item Type']=='Cosmetics']
+grouped_df = cosmetics_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].mean()
+grouped_np = grouped_df.to_numpy()
+
+x = grouped_np[:,0]
+y = grouped_np[:,1]
+fig_name = 'data\\test1.png'
+ax.bar(x, y)
+tick = mtick.StrMethodFormatter(value_fmt)
+ax.yaxis.set_major_formatter(tick) 
+ax.set_title('Average Profit\nCosmetrics', fontsize=20, fontweight='bold')
+ax.set_xlabel('Country', fontsize=15)
+ax.set_ylabel('Avg Profit', fontsize=15)
+plt.xticks(fontsize=10, rotation=90)
+plt.tight_layout()
+plt.savefig(fig_name)
+
+img = openpyxl.drawing.image.Image(fig_name)
+ws9.add_image(img, 'B2')
+    
+
+
+
+#-------------------------------------------------------------------------------------------
+# graphical analysis
+# bar label chart
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+plt.style.use('seaborn')
+
+fig, ax = plt.subplots(figsize=(20,10))
+
+value_fmt = '${x:,.0f}'
+
+ws10 = wb.create_sheet('graphs2')
+grouped_df = americas_df_orig[['Item Type', 'Sales Channel', 'Total Profit']].groupby(['Item Type', 'Sales Channel'], as_index=False)['Total Profit'].mean()
+grouped_np = grouped_df.to_numpy()
+
+x = []
+sales_channel = []
+avg_profit = []
+
+for row in grouped_np:
+    x.append(row[0])
+    sales_channel.append(row[1])
+    avg_profit.append(row[2])
+    
+print(x)
+print(sales_channel)
+print(avg_profit)
+
+'''
+sales_channel = grouped_np[:,1]
+avg_profit = grouped_np[:,2]
+
+width = 0.35  # the width of the bars
+
+fig, ax = plt.subplots()
+rects1 = ax.bar(x - width/2, men_means, width, label='Men')
+rects2 = ax.bar(x + width/2, women_means, width, label='Women')
+
+# Add some text for labels, title and custom x-axis tick labels, etc.
+ax.set_ylabel('Scores')
+ax.set_title('Scores by group and gender')
+ax.set_xticks(x)
+ax.set_xticklabels(labels)
+ax.legend()
+
+ax.bar_label(rects1, padding=3)
+ax.bar_label(rects2, padding=3)
+
+fig.tight_layout()
+
+plt.show()
+
+
+x = grouped_np[:,0]
+y = grouped_np[:,1]
+fig_name = 'data\\test1.png'
+ax.bar(x, y)
+tick = mtick.StrMethodFormatter(value_fmt)
+ax.yaxis.set_major_formatter(tick) 
+ax.set_title('Total Profit\nCosmetrics', fontsize=20, fontweight='bold')
+ax.set_xlabel('Country', fontsize=15)
+ax.set_ylabel('Total Profit', fontsize=15)
+plt.xticks(fontsize=10, rotation=90)
+plt.tight_layout()
+plt.savefig(fig_name)
+
+img = openpyxl.drawing.image.Image(fig_name)
+ws9.add_image(img, 'B2')
 
 wb.save('data//Sales Records processed.xlsx')
+'''
