@@ -553,114 +553,36 @@ for r in dataframe_to_rows(table3_df, index=False, header=True):
     tot_row_id += 1
     
 
-
-
+  
 #-------------------------------------------------------------------------------------------
 # graphical analysis
 # bar chart
+
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mtick
-plt.style.use('seaborn')
-
-fig, ax = plt.subplots(figsize=(20,10))
-
-value_fmt = '${x:,.0f}'
+import seaborn as sns
+sns.set(rc={'figure.figsize':(20,15)})
 
 ws9 = wb.create_sheet('graphs')
+fig_name = "data\\test2.png"
 
 cosmetics_df = americas_df[americas_df['Item Type']=='Cosmetics']
 grouped_df = cosmetics_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].mean()
-grouped_np = grouped_df.to_numpy()
+countries = grouped_df['Country'].to_numpy()
 
-x = grouped_np[:,0]
-y = grouped_np[:,1]
-fig_name = 'data\\test1.png'
-ax.bar(x, y)
-tick = mtick.StrMethodFormatter(value_fmt)
-ax.yaxis.set_major_formatter(tick) 
-ax.set_title('Average Profit\nCosmetrics', fontsize=20, fontweight='bold')
-ax.set_xlabel('Country', fontsize=15)
-ax.set_ylabel('Avg Profit', fontsize=15)
-plt.xticks(fontsize=10, rotation=90)
-plt.tight_layout()
-plt.savefig(fig_name)
+
+sns_plot = sns.barplot(x = "Country", y = "Total Profit", data = grouped_df)
+sns_plot.set_title('Average Profit by Country', size=25)
+sns_plot.set(xlabel='Country', ylabel='Average Profit')
+sns_plot.set_xticklabels(labels=countries, rotation=45)
+fig = sns_plot.get_figure()
+fig.savefig(fig_name)
 
 img = openpyxl.drawing.image.Image(fig_name)
 ws9.add_image(img, 'B2')
-    
 
 
 
-#-------------------------------------------------------------------------------------------
-# graphical analysis
-# bar label chart
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mtick
-plt.style.use('seaborn')
-
-fig, ax = plt.subplots(figsize=(20,10))
-
-value_fmt = '${x:,.0f}'
-
-ws10 = wb.create_sheet('graphs2')
-grouped_df = americas_df_orig[['Item Type', 'Sales Channel', 'Total Profit']].groupby(['Item Type', 'Sales Channel'], as_index=False)['Total Profit'].mean()
-grouped_np = grouped_df.to_numpy()
-
-x = []
-sales_channel = []
-avg_profit = []
-
-for row in grouped_np:
-    x.append(row[0])
-    sales_channel.append(row[1])
-    avg_profit.append(row[2])
-    
-print(x)
-print(sales_channel)
-print(avg_profit)
-
-'''
-sales_channel = grouped_np[:,1]
-avg_profit = grouped_np[:,2]
-
-width = 0.35  # the width of the bars
-
-fig, ax = plt.subplots()
-rects1 = ax.bar(x - width/2, men_means, width, label='Men')
-rects2 = ax.bar(x + width/2, women_means, width, label='Women')
-
-# Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel('Scores')
-ax.set_title('Scores by group and gender')
-ax.set_xticks(x)
-ax.set_xticklabels(labels)
-ax.legend()
-
-ax.bar_label(rects1, padding=3)
-ax.bar_label(rects2, padding=3)
-
-fig.tight_layout()
-
-plt.show()
-
-
-x = grouped_np[:,0]
-y = grouped_np[:,1]
-fig_name = 'data\\test1.png'
-ax.bar(x, y)
-tick = mtick.StrMethodFormatter(value_fmt)
-ax.yaxis.set_major_formatter(tick) 
-ax.set_title('Total Profit\nCosmetrics', fontsize=20, fontweight='bold')
-ax.set_xlabel('Country', fontsize=15)
-ax.set_ylabel('Total Profit', fontsize=15)
-plt.xticks(fontsize=10, rotation=90)
-plt.tight_layout()
-plt.savefig(fig_name)
-
-img = openpyxl.drawing.image.Image(fig_name)
-ws9.add_image(img, 'B2')
 
 wb.save('data//Sales Records processed.xlsx')
-'''
