@@ -565,7 +565,7 @@ import seaborn as sns
 sns.set(rc={'figure.figsize':(20,15)})
 
 ws9 = wb.create_sheet('graphs')
-fig_name = "data\\test2.png"
+fig_name2 = "data\\test2.png"
 
 cosmetics_df = americas_df[americas_df['Item Type']=='Cosmetics']
 grouped_df = cosmetics_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].mean()
@@ -577,9 +577,9 @@ sns_plot.set_title('Average Profit by Country', size=25)
 sns_plot.set(xlabel='Country', ylabel='Average Profit')
 sns_plot.set_xticklabels(labels=countries, rotation=45)
 fig = sns_plot.get_figure()
-fig.savefig(fig_name)
+fig.savefig(fig_name2)
 
-img = openpyxl.drawing.image.Image(fig_name)
+img = openpyxl.drawing.image.Image(fig_name2)
 ws9.add_image(img, 'B2')
     
 
@@ -589,7 +589,7 @@ ws9.add_image(img, 'B2')
 # pie chart
 
 #ws10 = wb.create_sheet('graphs')
-fig_name2 = "data\\test3.png"
+fig_name3 = "data\\test3.png"
 
 fig1, ax1 = plt.subplots()
 
@@ -598,11 +598,28 @@ grouped_df = cosmetics_df[['Country', 'Total Profit']].groupby('Country', as_ind
 
 ax1.pie(grouped_df['Total Profit'], labels=grouped_df['Country'], autopct='%1.1f%%', startangle=90)
 ax1.axis('equal')
-plt.savefig(fig_name2)
+plt.savefig(fig_name3)
 
-img2 = openpyxl.drawing.image.Image(fig_name2)
+img2 = openpyxl.drawing.image.Image(fig_name3)
 ws9.add_image(img2, 'B80')
     
 
+  
+#-------------------------------------------------------------------------------------------
+# graphical analysis
+# pie chart 2
+
+fig_name4 = "data\\test4.png"
+
+fig1, ax1 = plt.subplots()
+dominica_df = americas_df[americas_df['Country']=='Dominica']
+dominica_grouped_df = dominica_df[['Item Type', 'Total Profit']].groupby('Item Type', as_index=False)['Total Profit'].sum()
+
+ax1.pie(dominica_grouped_df['Total Profit'], labels=dominica_grouped_df['Item Type'], autopct='%1.1f%%', startangle=90)
+ax1.axis('equal')
+plt.savefig(fig_name4)
+
+img2 = openpyxl.drawing.image.Image(fig_name4)
+ws9.add_image(img2, 'B160')
 
 wb.save('data//Sales Records processed.xlsx')
