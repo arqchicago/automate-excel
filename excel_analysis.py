@@ -586,23 +586,23 @@ ws9.add_image(img, 'B2')
   
 #-------------------------------------------------------------------------------------------
 # graphical analysis
-# bar chart
+# pie chart
 
 #ws10 = wb.create_sheet('graphs')
 fig_name2 = "data\\test3.png"
 
+fig1, ax1 = plt.subplots()
+
 cosmetics_df = americas_df[americas_df['Item Type']=='Cosmetics']
-grouped_df = cosmetics_df[['Country', 'Sales Channel', 'Total Profit']].groupby(['Country', 'Sales Channel'], as_index=False)['Total Profit'].mean()
-#countries = np.unique(grouped_df['Country'].to_numpy())
-#print(grouped_df)
-sns_plot2 = sns.barplot(x = "Country", y = "Total Profit", hue="Sales Channel", data = grouped_df)
-sns_plot2.set_title('Average Profit by Country', size=25)
-sns_plot2.set(xlabel='Country', ylabel='Average Profit')
-#sns_plot2.set_xticklabels(labels=countries, rotation=45)
-fig2 = sns_plot2.get_figure()
-fig2.savefig(fig_name2)
+grouped_df = cosmetics_df[['Country', 'Total Profit']].groupby('Country', as_index=False)['Total Profit'].sum()
+
+ax1.pie(grouped_df['Total Profit'], labels=grouped_df['Country'], autopct='%1.1f%%', startangle=90)
+ax1.axis('equal')
+plt.savefig(fig_name2)
 
 img2 = openpyxl.drawing.image.Image(fig_name2)
 ws9.add_image(img2, 'B80')
+    
+
 
 wb.save('data//Sales Records processed.xlsx')
